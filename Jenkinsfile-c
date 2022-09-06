@@ -17,7 +17,7 @@
      stage("Build api-service"){
 
         dir('api-service') {
-            sh "cp /var/jenkins/workspace/${params.MICROSERVICE_JOBNAME}/target/${params.API_NAME}.jar ${params.API_NAME}.jar"
+            sh "cp /var/jenkins/workspace/${params.MICROSERVICE_JOBNAME}/ws/target/${params.API_NAME}.jar ${params.API_NAME}.jar"
         }
 
     }
