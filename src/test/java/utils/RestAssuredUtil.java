@@ -10,7 +10,7 @@ import io.restassured.response.Response;
 public class RestAssuredUtil {
     //Sets Base URI
     public static void setBaseURI() {
-        RestAssured.baseURI = "http://localhost:9090/";
+        RestAssured.baseURI = "http://localhost:9090/greeting";
     }
 
     //Sets base path
