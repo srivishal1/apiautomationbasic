@@ -1,4 +1,4 @@
-FROM openjdk:8-jdk-alpine
+FROM maven:3.5.2-jdk-8-alpine AS MAVEN_TOOL_CHAIN
 
 COPY api-service/greetingservice-0.0.1-SNAPSHOT.jar /opt/app/app.jar
 COPY coverage/jacocoagent.jar /opt/app/agent.jar
