@@ -1,4 +1,4 @@
-FROM 4info/openjdk-as:11-jre
+FROM openjdk:8-jdk-alpine
 
 COPY api-service/data-sets-api.jar /opt/app/app.jar
 COPY coverage/jacocoagent.jar /opt/app/agent.jar
@@ -9,4 +9,4 @@ EXPOSE 8080
 EXPOSE 6300
 
 
-ENTRYPOINT ["java", "-javaagent:/opt/app/agent.jar=output=tcpserver,address=0.0.0.0,port=6300","-DAPP_HOME=/opt/app/","-Dspring.profiles.active=qa","-jar", "/opt/app/app.jar"]
+ENTRYPOINT ["java", "-javaagent:/opt/app/agent.jar=output=tcpserver,address=0.0.0.0,port=6300","-DAPP_HOME=/opt/app/","-jar", "/opt/app/app.jar"]
