@@ -1,0 +1,45 @@
+#!groovy
+
+    node('jenkinsb-qa-node-16'){
+        try {
+            stage("Cleanup Workspace"){ deleteDir() }
+            stage("Checkout"){ checkout scm }
+            stage("Build api-service"){ service() }
+            stage("Run automation"){ testExecution()}
+            stage("Report"){ report()}
+
+        }catch (err) {
+
+            throw err
+        }
+    }
+
+     stage("Build api-service"){
+
+        dir('api-service') {
+            sh "cp /var/jenkins/workspace/${params.MICROSERVICE_JOBNAME}/target/${params.API_NAME}.jar ${params.API_NAME}.jar"
+        }
+
+    }
+
+    stage("Run automation") {
+
+        script {
+            serviceImage = docker.build 'api-service:snapshot'
+            //container = serviceImage.run('-p 8080:8080')
+            //docker.image(serviceImage).withRun { c ->
+            serviceImage.withRun('-p 8080:8080 -p 6300:6300') { c ->
+                //input message: "continue?"
+                sh 'netstat -tulpa'
+                withMaven(maven: 'Maven_3_3_9', jdk: 'Java_Jenkins_JDK8u221'){
+                    sh "mvn clean install package -Dsuite=suites/testng.xml"
+                }
+                sh 'java -jar coverage/jacococli.jar dump --destfile target/automation.exec'
+
+                sh "java -jar coverage/jacococli.jar report target/automation.exec --classfiles /var/jenkins/workspace/${params.MICROSERVICE_JOBNAME}/target/classes --xml /var/jenkins/workspace/${env.JOB_NAME}/target/automation.xml"
+            }
+        }
+
+    }
+
+   
