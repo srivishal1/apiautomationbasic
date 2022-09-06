@@ -4,7 +4,7 @@ public class BasicApiTest extends BaseTest {
 
     @Test
     public void T01_StatusCodeAndGetClientsTest() {
-        res = utils.RestAssuredUtil.getResponse("http://localhost:9090/greeting");
+        res = utils.RestAssuredUtil.getResponse("http://localhost:8080/greeting");
         testUtil.checkStatusIs200(res);
         jp = utils.RestAssuredUtil.getJsonPath(res);
         System.out.println(jp);
