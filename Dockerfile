@@ -1,6 +1,6 @@
 FROM openjdk:8-jdk-alpine
 
-COPY api-service/data-sets-api.jar /opt/app/app.jar
+COPY api-service/greetingservice-0.0.1-SNAPSHOT.jar /opt/app/app.jar
 COPY coverage/jacocoagent.jar /opt/app/agent.jar
 WORKDIR /opt/app
 RUN sh -c 'touch /opt/app/app.jar'
