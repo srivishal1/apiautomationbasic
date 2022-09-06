@@ -5,7 +5,7 @@ COPY coverage/jacocoagent.jar /opt/app/agent.jar
 WORKDIR /opt/app
 RUN sh -c 'touch /opt/app/app.jar'
 
-EXPOSE 9090
+EXPOSE 8080
 EXPOSE 6300
 
 
