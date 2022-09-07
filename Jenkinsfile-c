@@ -1,45 +1,53 @@
-#!groovy
+ pipeline {
+    agent any
 
-    node('jenkinsb-qa-node-16'){
-        try {
-            stage("Cleanup Workspace"){ deleteDir() }
-            stage("Checkout"){ checkout scm }
-            stage("Build api-service"){ service() }
-            stage("Run automation"){ testExecution()}
-            stage("Report"){ report()}
-
-        }catch (err) {
-
-            throw err
-        }
-    }
-
-     stage("Build api-service"){
-
+    
+    stages{
+ stage('Pull Code from GitHub') {
+            steps{
+                git url: 'https://github.com/srivishal1/apiautomationbasic.git'
+            }
+            }
+ stage("Build api-service"){
+steps{
         dir('api-service') {
-            sh "cp /var/jenkins/workspace/${params.MICROSERVICE_JOBNAME}/ws/target/${params.API_NAME}.jar ${params.API_NAME}.jar"
+            sh "cp /var/lib/jenkins/workspace/${params.MICROSERVICE_JOBNAME}/target/${params.API_NAME}.jar ${params.API_NAME}.jar"
         }
 
+    }
     }
 
     stage("Run automation") {
-
+steps{
         script {
             serviceImage = docker.build 'api-service:snapshot'
             //container = serviceImage.run('-p 8080:8080')
             //docker.image(serviceImage).withRun { c ->
-            serviceImage.withRun('-p 8080:8080 -p 6300:6300') { c ->
+            serviceImage.withRun('-p 9090:8080 -p 6300:6300') { c ->
                 //input message: "continue?"
-                sh 'netstat -tulpa'
-                withMaven(maven: 'Maven_3_3_9', jdk: 'Java_Jenkins_JDK8u221'){
-                    sh "mvn clean install package -Dsuite=suites/testng.xml"
-                }
+                sh 'netstat -ntlupa | grep -i 9090'
+                
+                sh 'wget http://localhost:9090/greeting'
+               // withMaven(maven: 'Maven_3_8_4', jdk: 'Java_Jenkins_JDK8u221'){
+                    sh "mvn clean test"
+                //}
                 sh 'java -jar coverage/jacococli.jar dump --destfile target/automation.exec'
 
-                sh "java -jar coverage/jacococli.jar report target/automation.exec --classfiles /var/jenkins/workspace/${params.MICROSERVICE_JOBNAME}/target/classes --xml /var/jenkins/workspace/${env.JOB_NAME}/target/automation.xml"
+                sh "java -jar coverage/jacococli.jar report target/automation.exec --classfiles /var/lib/jenkins/workspace/${params.MICROSERVICE_JOBNAME}/target/classes --xml /var/lib/jenkins/workspace/${env.JOB_NAME}/target/automation.xml"
             }
         }
-
+}
     }
-
+     stage("Report"){
+        steps{
+             script {
+            sh "java -Dsonar.host.url=http://localhost:9000 -Dsonar.projectKey=automation-${params.API_NAME} -Dsonar.login=admin -Dsonar.password=1qaz@WSX -Dsonar.projectBaseDir=/var/lib/jenkins/workspace/${params.MICROSERVICE_JOBNAME} -Dsonar.java.binaries=target -Dsonar.coverage.jacoco.xmlReportPaths=/var/lib/jenkins/workspace/${env.JOB_NAME}/target/automation.xml -Dsonar.java.libraries=/var/lib/jenkins/workspace/${env.JOB_NAME}/coverage/jacococli.jar -jar /var/lib/jenkins/workspace/${env.JOB_NAME}/coverage/sonar-scanner-cli-4.7.0.2747.jar"
+            }
+        }
+        }
+    }
    
+ }
+ 
+ 
+ 
