@@ -6,7 +6,7 @@ WORKDIR /opt/app
 RUN sh -c 'touch /opt/app/app.jar'
 
 EXPOSE 8080
-EXPOSE 6300
+
 
 
 ENTRYPOINT ["java", "-javaagent:/opt/app/agent.jar=output=tcpserver,address=0.0.0.0,port=6300","-DAPP_HOME=/opt/app/","-jar", "/opt/app/app.jar"]
